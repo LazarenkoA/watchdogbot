@@ -70,8 +70,8 @@ func main() {
 				}
 			} else {
 				txt := fmt.Sprintf("Привет %v %v!\n" +
-					"Для начала работы отправьте мне конфигурационный файл." +
-					"Пример конфига https://github.com/LazarenkoA/watchdogbot/blob/main/example%20conf.xml", update.Message.From.FirstName, update.Message.From.LastName)
+					"Для начала работы отправьте мне конфигурационный файл. " +
+					"Пример конфига https://github.com/LazarenkoA/watchdogbot/blob/main/exampl_conf.xml", update.Message.From.FirstName, update.Message.From.LastName)
 				wd.SendMsg(txt, chatID, Buttons {})
 			}
 		case "cancel":
