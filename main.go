@@ -4,7 +4,6 @@ import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/ungerik/go-dry"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -12,21 +11,22 @@ import (
 
 var (
 	BotToken = os.Getenv("BotToken")
-    WebhookURL = os.Getenv("WebhookURL")
+	WebhookURL = os.Getenv("WebhookURL")
+	port = os.Getenv("PORT")
 )
 
 
 func main() {
 	// ****************** нужно для хероку ******************
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "80"
-	}
-	//go http.ListenAndServeTLS(":"+port, "server.crt", "server.key", nil)
-	go http.ListenAndServe(":"+port, nil)
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, "working")
-	})
+	//port := os.Getenv("PORT")
+	//if port == "" {
+	//	port = "80"
+	//}
+	////go http.ListenAndServeTLS(":"+port, "server.crt", "server.key", nil)
+	//go http.ListenAndServe(":"+port, nil)
+	//http.HandleFunc("/вуи", func(w http.ResponseWriter, r *http.Request) {
+	//	fmt.Fprint(w, "working")
+	//})
 	// ******************
 
 

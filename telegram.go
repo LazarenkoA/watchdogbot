@@ -61,7 +61,7 @@ func (this *TwatchDog) New() (result tgbotapi.UpdatesChannel, err error) {
 		return nil, err
 	}
 
-	go http.ListenAndServe(":8080", nil)
+	go http.ListenAndServe(":" + port, nil)
 	return this.bot.ListenForWebhook("/"), nil
 }
 
