@@ -138,7 +138,7 @@ func saveFile(filePath, chatID string) (string, error) {
 	currentDir, _ := os.Getwd()
 	dir := filepath.Join(currentDir, chatID)
 
-	os.MkdirAll(dir, os.ModeDir)
+	os.MkdirAll(dir, os.ModePerm)
 	conf := filepath.Join(dir, "conf.xml")
 
 	if err := dry.FileCopy(filePath, conf); err != nil {
