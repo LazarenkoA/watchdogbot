@@ -11,10 +11,6 @@ import (
 
 
 func main() {
-	fmt.Println(os.Getenv("BotToken"))
-	fmt.Println(os.Getenv("WebhookURL"))
-
-
 	wd := new(TwatchDog)
 	wdUpdate, err := wd.New()
 	if err != nil {
