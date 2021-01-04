@@ -4,6 +4,7 @@ import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/ungerik/go-dry"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -16,6 +17,19 @@ var (
 
 
 func main() {
+	// ****************** нужно для хероку ******************
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "80"
+	}
+	//go http.ListenAndServeTLS(":"+port, "server.crt", "server.key", nil)
+	go http.ListenAndServe(":"+port, nil)
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprint(w, "working")
+	})
+	// ******************
+
+
 	wd := new(TwatchDog)
 	wdUpdate, err := wd.New()
 	if err != nil {
