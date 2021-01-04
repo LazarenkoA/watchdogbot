@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Conf>
+	<!-- в минутах -->
+   <Interval>2</Interval> <!-- 1440 - 24ч -->
+   
+   <!-- в секундах -->
+   <Timer>60</Timer> <!-- до отправки x2 т.к. есть еще сообщение с подтверждением -->
+   <Email>
+      <SMTP>smtp.mail.ru</SMTP>
+      <UserName></UserName>
+      <Pass></Pass>
+      <Subject></Subject> <!-- тема письма -->
+	  
+	  <!-- получатели -->
+      <Recipients></Recipients>
+      <Recipients></Recipients>
+	  <Recipients></Recipients>
+   </Email>
+   
+   <!-- имеет смысл использовать если есть телеграм клиент с rest api -->
+   <Telegram>
+	   <URL></URL>
+	   <Recipients></Recipients>
+       <Recipients></Recipients>
+   </Telegram>
+   
+   <!-- сообщение которое будет отправляться -->
+   <Msgtxt></Msgtxt>
+</Conf>

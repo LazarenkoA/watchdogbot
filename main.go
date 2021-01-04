@@ -17,19 +17,6 @@ var (
 
 
 func main() {
-	// ****************** нужно для хероку ******************
-	//port := os.Getenv("PORT")
-	//if port == "" {
-	//	port = "80"
-	//}
-	////go http.ListenAndServeTLS(":"+port, "server.crt", "server.key", nil)
-	//go http.ListenAndServe(":"+port, nil)
-	//http.HandleFunc("/вуи", func(w http.ResponseWriter, r *http.Request) {
-	//	fmt.Fprint(w, "working")
-	//})
-	// ******************
-
-
 	wd := new(TwatchDog)
 	wdUpdate, err := wd.New()
 	if err != nil {
@@ -44,8 +31,6 @@ func main() {
 		fmt.Println("в переменных окружения не задан WebhookURL")
 		os.Exit(1)
 	}
-
-
 
 	for update := range wdUpdate {
 		// обработка команд кнопок
