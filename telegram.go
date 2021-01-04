@@ -40,17 +40,18 @@ type TwatchDog struct {
 	running  int32
 }
 
+
 func (this *TwatchDog) New() (result tgbotapi.UpdatesChannel, err error) {
 	//this.chatIDs = map[int64]bool{}
 	this.callback = map[string]func(){}
 	this.handlers = map[int64]*scheduler{}
 
-	this.bot, err = tgbotapi.NewBotAPIWithClient(os.Getenv("BotToken"), new(http.Client))
+	this.bot, err = tgbotapi.NewBotAPIWithClient(BotToken, new(http.Client))
 	//bot.Debug = true
 	if err != nil {
 		return nil, err
 	}
-	WebhookURL := os.Getenv("WebhookURL") //getngrokWebhookURL() - для отладки
+	//WebhookURL := getngrokWebhookURL() // для отладки
 	if WebhookURL == "" {
 		return nil, errors.New("не удалось получить WebhookURL")
 	}

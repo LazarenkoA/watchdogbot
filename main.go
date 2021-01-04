@@ -9,14 +9,29 @@ import (
 	"strconv"
 )
 
+var (
+	BotToken = os.Getenv("BotToken")
+    WebhookURL = os.Getenv("WebhookURL")
+)
+
 
 func main() {
 	wd := new(TwatchDog)
 	wdUpdate, err := wd.New()
 	if err != nil {
-		fmt.Print("не удалось подключить бота, ошибка:\n"+ err.Error())
+		fmt.Println("не удалось подключить бота, ошибка:\n"+ err.Error())
 		os.Exit(1)
 	}
+	if BotToken == "" {
+		fmt.Println("в переменных окружения не задан BotToken")
+		os.Exit(1)
+	}
+	if WebhookURL == "" {
+		fmt.Println("в переменных окружения не задан WebhookURL")
+		os.Exit(1)
+	}
+
+
 
 	for update := range wdUpdate {
 		// обработка команд кнопок
