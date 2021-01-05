@@ -80,6 +80,7 @@ func (this *TwatchDog) SendMsg(msg string, chatID int64, buttons Buttons) (int, 
 	}
 
 	if timerExist {
+		atomic.AddInt32(&this.counter, 1)
 		go this.setTimer(m, buttons, cxt, cancel) // таймер кнопки
 	}
 
@@ -167,8 +168,6 @@ B:
 			editmsg := tgbotapi.NewEditMessageText(msg.Chat.ID, msg.MessageID, msg.Text)
 			buttons.createButtons(&editmsg, this.callback, cancel, 3)
 			this.bot.Send(editmsg)
-
-			atomic.AddInt32(&this.counter, 1)
 
 			// таймер вышел
 			if button != nil {
