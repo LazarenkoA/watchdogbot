@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"time"
 )
 
@@ -26,16 +27,16 @@ type Conf struct {
 
 	// Настройки отправки тележку, через rest API
 	Telegram *struct {
-		URL string
+		URL        string
 		Recipients []string
 	}
 }
 
 type scheduler struct {
-	ctx    context.Context
-	Cancel context.CancelFunc
-	tick   *time.Ticker
-	conf   *Conf
+	ctx      context.Context
+	Cancel   context.CancelFunc
+	tick     *time.Ticker
+	conf     *Conf
 	callback func()
 }
 
@@ -56,6 +57,7 @@ func (this *scheduler) Invoke() bool {
 	start := time.Now()
 B:
 	for {
+		fmt.Println("1")
 		select {
 		case <-this.tick.C:
 			if time.Now().After(start.Add(time.Minute * time.Duration(this.conf.Interval))) {

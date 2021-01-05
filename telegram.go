@@ -35,9 +35,9 @@ type Buttons []*Button
 type TwatchDog struct {
 	bot *tgbotapi.BotAPI
 	//chatIDs  map[int64]bool
-	callback map[string]func()
-	handlers map[int64]*scheduler
-	running  int32
+	callback         map[string]func()
+	handlers         map[int64]*scheduler
+	running, counter int32
 }
 
 func (this *TwatchDog) New() (result tgbotapi.UpdatesChannel, err error) {
@@ -168,13 +168,18 @@ B:
 			buttons.createButtons(&editmsg, this.callback, cancel, 3)
 			this.bot.Send(editmsg)
 
+			atomic.AddInt32(&this.counter, 1)
+
 			// таймер вышел
 			if button != nil {
 				if h, ok := this.callback[button.ID]; ok {
 					h()
 					delete(this.callback, button.ID)
+					atomic.AddInt32(&this.counter, -1)
 				}
 			}
+
+			fmt.Printf("this.counter = %d\n", this.counter)
 		case <-cxt.Done():
 			break B
 		}
