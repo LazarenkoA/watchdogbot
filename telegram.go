@@ -80,7 +80,6 @@ func (this *TwatchDog) SendMsg(msg string, chatID int64, buttons Buttons) (int, 
 	}
 
 	if timerExist {
-		atomic.AddInt32(&this.counter, 1)
 		go this.setTimer(m, buttons, cxt, cancel) // таймер кнопки
 	}
 
@@ -174,7 +173,6 @@ B:
 				if h, ok := this.callback[button.ID]; ok {
 					h()
 					delete(this.callback, button.ID)
-					atomic.AddInt32(&this.counter, -1)
 				}
 			}
 
@@ -241,6 +239,7 @@ func (this *TwatchDog) Start(chatID int64, conf *Conf) bool {
 	mx := new(sync.Mutex)
 
 	f := func() {
+		atomic.AddInt32(&this.counter, 1)
 		mx.Lock()
 
 		help := func() {}
@@ -307,6 +306,7 @@ func (this *TwatchDog) Start(chatID int64, conf *Conf) bool {
 				this.SendMsg(conf.Msgtxt, chatID, Buttons{})
 			}
 
+			atomic.AddInt32(&this.counter, -1)
 		}
 	}
 
