@@ -40,7 +40,6 @@ type TwatchDog struct {
 	running  int32
 }
 
-
 func (this *TwatchDog) New() (result tgbotapi.UpdatesChannel, err error) {
 	//this.chatIDs = map[int64]bool{}
 	this.callback = map[string]func(){}
@@ -52,9 +51,9 @@ func (this *TwatchDog) New() (result tgbotapi.UpdatesChannel, err error) {
 		return nil, err
 	}
 
-	//WebhookURL := getngrokWebhookURL() // для отладки
+	//WebhookURL = getngrokWebhookURL() // для отладки
 	if WebhookURL == "" {
-		return nil, errors.New("не удалось получить WebhookURL")
+		return nil, errors.New("не удалось получить url WebhookURL")
 	}
 
 	_, err = this.bot.SetWebhook(tgbotapi.NewWebhook(WebhookURL))
@@ -62,7 +61,7 @@ func (this *TwatchDog) New() (result tgbotapi.UpdatesChannel, err error) {
 		return nil, err
 	}
 
-	go http.ListenAndServe(":" + port, nil)
+	go http.ListenAndServe(":"+port, nil)
 	return this.bot.ListenForWebhook("/"), nil
 }
 
@@ -169,13 +168,12 @@ B:
 			buttons.createButtons(&editmsg, this.callback, cancel, 3)
 			this.bot.Send(editmsg)
 
+			// таймер вышел
 			if button != nil {
-				if button.handler != nil {
-					(*button.handler)()
+				if h, ok := this.callback[button.ID]; ok {
+					h()
+					delete(this.callback, button.ID)
 				}
-
-				delete(this.callback, button.ID)
-				break B
 			}
 		case <-cxt.Done():
 			break B
@@ -296,13 +294,13 @@ func (this *TwatchDog) Start(chatID int64, conf *Conf) bool {
 					ChatID:    chatID,
 					MessageID: messageID2})
 
-				n := &Notify{
-					conf: conf,
-				}
-				go n.NotifyTelegram()
-				go n.NotifyEmail()
+				//n := &Notify{
+				//	conf: conf,
+				//}
+				//go n.NotifyTelegram()
+				//go n.NotifyEmail()
 
-				//this.SendMsg(conf.Msgtxt, chatID, Buttons{})
+				this.SendMsg(conf.Msgtxt, chatID, Buttons{})
 			}
 
 		}
@@ -381,7 +379,7 @@ func (this Buttons) createButtons(msg tgbotapi.Chattable, callback map[string]fu
 
 		caption := item.caption
 		if item.timer > 0 {
-			caption = fmt.Sprintf("%s (%02d:%02d:%02d)", item.caption, (item.timer  / 3600), (item.timer % 3600) / 60, (item.timer % 60) )
+			caption = fmt.Sprintf("%s (%02d:%02d:%02d)", item.caption, (item.timer / 3600), (item.timer%3600)/60, (item.timer % 60))
 		}
 
 		btn := tgbotapi.NewInlineKeyboardButtonData(caption, item.ID)
