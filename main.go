@@ -42,7 +42,6 @@ func main() {
 
 		command := update.Message.Command()
 		chatID := update.Message.Chat.ID
-		fmt.Println(chatID)
 
 		//wd.AppendChatID(chatID)
 
