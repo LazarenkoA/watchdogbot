@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"time"
 )
 
@@ -57,7 +56,6 @@ func (this *scheduler) Invoke() bool {
 	start := time.Now()
 B:
 	for {
-		fmt.Println("1")
 		select {
 		case <-this.tick.C:
 			if time.Now().After(start.Add(time.Minute * time.Duration(this.conf.Interval))) {

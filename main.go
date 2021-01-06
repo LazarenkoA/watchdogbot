@@ -10,17 +10,16 @@ import (
 )
 
 var (
-	BotToken = os.Getenv("BotToken")
+	BotToken   = os.Getenv("BotToken")
 	WebhookURL = os.Getenv("WebhookURL")
-	port = os.Getenv("PORT")
+	port       = os.Getenv("PORT")
 )
-
 
 func main() {
 	wd := new(TwatchDog)
 	wdUpdate, err := wd.New()
 	if err != nil {
-		fmt.Println("не удалось подключить бота, ошибка:\n"+ err.Error())
+		fmt.Println("не удалось подключить бота, ошибка:\n" + err.Error())
 		os.Exit(1)
 	}
 	if BotToken == "" {
@@ -43,6 +42,8 @@ func main() {
 
 		command := update.Message.Command()
 		chatID := update.Message.Chat.ID
+		fmt.Println(chatID)
+
 		//wd.AppendChatID(chatID)
 
 		switch command {
@@ -54,22 +55,22 @@ func main() {
 					wd.SendMsg("watchdog уже запущен", chatID, Buttons{})
 				}
 			} else {
-				txt := fmt.Sprintf("Привет %v %v!\n" +
-					"Для начала работы отправьте мне конфигурационный файл. " +
+				txt := fmt.Sprintf("Привет %v %v!\n"+
+					"Для начала работы отправьте мне конфигурационный файл. "+
 					"Пример конфига https://github.com/LazarenkoA/watchdogbot/blob/main/exampl_conf.xml", update.Message.From.FirstName, update.Message.From.LastName)
-				wd.SendMsg(txt, chatID, Buttons {})
+				wd.SendMsg(txt, chatID, Buttons{})
 			}
 		case "cancel":
 			wd.Stop(chatID)
 			wd.bot.Send(tgbotapi.NewMessage(chatID, "watchdog остановлен"))
 		default:
 			if command != "" {
-				wd.SendMsg("Команда " + command + " не поддерживается", chatID, Buttons{})
+				wd.SendMsg("Команда "+command+" не поддерживается", chatID, Buttons{})
 				continue
 			}
 			var conf *Conf
 			if filePath, err := wd.SaveFile(update.Message); err != nil {
-				wd.SendMsg("Ошибка сохранения файла:\n" + err.Error(), chatID, Buttons{})
+				wd.SendMsg("Ошибка сохранения файла:\n"+err.Error(), chatID, Buttons{})
 			} else if conf, err = wd.checkConfig(filePath); err != nil {
 				wd.SendMsg("Ошибка проверки синтаксиса:\n"+err.Error(), chatID, Buttons{})
 			} else if conf = wd.configExist(chatID); conf != nil {
@@ -80,7 +81,7 @@ func main() {
 				handleryes := func() {}
 				handlerno := func() {}
 
-				messageID, _ := wd.SendMsg("Конфигурационный файл уже существует, заменить его?", chatID, Buttons {
+				messageID, _ := wd.SendMsg("Конфигурационный файл уже существует, заменить его?", chatID, Buttons{
 					{
 						caption: "Да",
 						handler: &handleryes,
@@ -99,9 +100,9 @@ func main() {
 				}
 				handleryes = func() {
 					if confPath, err := saveFile(filePath, strconv.FormatInt(chatID, 10)); err != nil {
-						wd.SendMsg("Ошибка опирования файла:\n" + err.Error(), chatID, Buttons{})
+						wd.SendMsg("Ошибка опирования файла:\n"+err.Error(), chatID, Buttons{})
 					} else {
-						conf, _  = wd.checkConfig(confPath)
+						conf, _ = wd.checkConfig(confPath)
 						editmsg := tgbotapi.NewEditMessageText(chatID, messageID, "Конфиг заменен.\nwatchdog перезапущен")
 						wd.bot.Send(editmsg)
 						wd.ReStart(chatID, conf)
@@ -109,7 +110,7 @@ func main() {
 				}
 			} else {
 				if confPath, err := saveFile(filePath, strconv.FormatInt(chatID, 10)); err != nil {
-					wd.SendMsg("Ошибка копирования файла:\n" + err.Error(), chatID, Buttons{})
+					wd.SendMsg("Ошибка копирования файла:\n"+err.Error(), chatID, Buttons{})
 				} else {
 					conf, _ = wd.checkConfig(confPath)
 				}

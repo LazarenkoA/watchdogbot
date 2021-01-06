@@ -35,9 +35,9 @@ type Buttons []*Button
 type TwatchDog struct {
 	bot *tgbotapi.BotAPI
 	//chatIDs  map[int64]bool
-	callback         map[string]func()
-	handlers         map[int64]*scheduler
-	running, counter int32
+	callback map[string]func()
+	handlers map[int64]*scheduler
+	running  int32
 }
 
 func (this *TwatchDog) New() (result tgbotapi.UpdatesChannel, err error) {
@@ -176,7 +176,6 @@ B:
 				}
 			}
 
-			fmt.Printf("this.counter = %d\n", this.counter)
 		case <-cxt.Done():
 			break B
 		}
@@ -239,7 +238,6 @@ func (this *TwatchDog) Start(chatID int64, conf *Conf) bool {
 	mx := new(sync.Mutex)
 
 	f := func() {
-		atomic.AddInt32(&this.counter, 1)
 		mx.Lock()
 
 		help := func() {}
@@ -306,7 +304,6 @@ func (this *TwatchDog) Start(chatID int64, conf *Conf) bool {
 				this.SendMsg(conf.Msgtxt, chatID, Buttons{})
 			}
 
-			atomic.AddInt32(&this.counter, -1)
 		}
 	}
 
