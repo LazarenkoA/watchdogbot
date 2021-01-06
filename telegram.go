@@ -164,6 +164,10 @@ B:
 				}
 			}
 
+			if msg.Chat == nil {
+				fmt.Println("msg.Chat == nil")
+			}
+
 			editmsg := tgbotapi.NewEditMessageText(msg.Chat.ID, msg.MessageID, msg.Text)
 			buttons.createButtons(&editmsg, this.callback, cancel, 3)
 			this.bot.Send(editmsg)
