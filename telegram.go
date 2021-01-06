@@ -307,11 +307,11 @@ func (this *TwatchDog) Start(chatID int64, conf *Conf) bool {
 		}
 	}
 
-	this.handlers[chatID] = new(scheduler).New(conf, f)
 	if !atomic.CompareAndSwapInt32(&this.running, 0, 1) {
 		return false
 	}
 
+	this.handlers[chatID] = new(scheduler).New(conf, f)
 	go this.handlers[chatID].Invoke()
 
 	return true
@@ -320,10 +320,7 @@ func (this *TwatchDog) Start(chatID int64, conf *Conf) bool {
 func (this *TwatchDog) Stop(chatID int64) {
 	defer atomic.CompareAndSwapInt32(&this.running, 1, 0)
 
-	fmt.Println(chatID)
-	fmt.Println(this.handlers)
 	if sc, ok := this.handlers[chatID]; ok {
-		fmt.Println("найдено")
 		sc.Cancel()
 		delete(this.handlers, chatID)
 	}
