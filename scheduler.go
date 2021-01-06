@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"time"
 )
 
@@ -64,6 +65,7 @@ B:
 			}
 
 		case <-this.ctx.Done():
+			fmt.Println("выход из цикла")
 			break B
 		}
 	}
