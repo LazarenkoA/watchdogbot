@@ -320,7 +320,10 @@ func (this *TwatchDog) Start(chatID int64, conf *Conf) bool {
 func (this *TwatchDog) Stop(chatID int64) {
 	defer atomic.CompareAndSwapInt32(&this.running, 1, 0)
 
+	fmt.Println(chatID)
+	fmt.Println(this.handlers)
 	if sc, ok := this.handlers[chatID]; ok {
+		fmt.Println("найдено")
 		sc.Cancel()
 		delete(this.handlers, chatID)
 	}
