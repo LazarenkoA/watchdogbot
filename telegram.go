@@ -298,8 +298,8 @@ func (this *TwatchDog) Start(chatID int64, conf *Conf) bool {
 			}
 			send = func() {
 				defer func() {
-					mx.Unlock()
 					fmt.Println("Unlock")
+					mx.Unlock()
 				}()
 
 				this.bot.DeleteMessage(tgbotapi.DeleteMessageConfig{
