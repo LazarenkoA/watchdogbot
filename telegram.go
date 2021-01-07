@@ -272,6 +272,7 @@ func (this *TwatchDog) Start(chatID int64, conf *Conf) bool {
 			mx.Unlock()
 		}
 		help = func() {
+			fmt.Println("вопрос")
 			this.bot.DeleteMessage(tgbotapi.DeleteMessageConfig{
 				ChatID:    chatID,
 				MessageID: messageID})
@@ -299,6 +300,7 @@ func (this *TwatchDog) Start(chatID int64, conf *Conf) bool {
 				mx.Unlock()
 			}
 			send = func() {
+				fmt.Println("send start")
 				defer func() {
 					fmt.Println("Unlock")
 					mx.Unlock()
@@ -315,6 +317,7 @@ func (this *TwatchDog) Start(chatID int64, conf *Conf) bool {
 				//go n.NotifyEmail()
 
 				this.SendMsg(conf.Msgtxt, chatID, Buttons{})
+				fmt.Println("send end")
 			}
 
 		}
