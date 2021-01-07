@@ -242,6 +242,7 @@ func (this *TwatchDog) Start(chatID int64, conf *Conf) bool {
 	mx := new(sync.Mutex)
 
 	f := func() {
+		fmt.Println("Lock")
 		mx.Lock()
 
 		help := func() {}
@@ -293,7 +294,10 @@ func (this *TwatchDog) Start(chatID int64, conf *Conf) bool {
 				mx.Unlock()
 			}
 			send = func() {
-				defer mx.Unlock()
+				defer func() {
+					mx.Unlock()
+					fmt.Println("Unlock")
+				}()
 
 				this.bot.DeleteMessage(tgbotapi.DeleteMessageConfig{
 					ChatID:    chatID,
