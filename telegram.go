@@ -165,7 +165,7 @@ B:
 			}
 
 			if msg.Chat == nil {
-				fmt.Println("msg.Chat == nil")
+				continue
 			}
 
 			editmsg := tgbotapi.NewEditMessageText(msg.Chat.ID, msg.MessageID, msg.Text)
