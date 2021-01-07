@@ -248,6 +248,8 @@ func (this *TwatchDog) Start(chatID int64, conf *Conf) bool {
 		fmt.Println("Lock")
 		mx.Lock()
 
+		fmt.Println("invoke")
+
 		help := func() {}
 		delete := func() {}
 
