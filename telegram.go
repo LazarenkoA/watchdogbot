@@ -239,8 +239,11 @@ func (this *TwatchDog) downloadFile(filepath, url string) error {
 }
 
 func (this *TwatchDog) Start(chatID int64, conf *Conf) bool {
-	mx := new(sync.Mutex)
+	if !atomic.CompareAndSwapInt32(&this.running, 0, 1) {
+		return false
+	}
 
+	mx := new(sync.Mutex)
 	f := func() {
 		fmt.Println("Lock")
 		mx.Lock()
@@ -313,10 +316,6 @@ func (this *TwatchDog) Start(chatID int64, conf *Conf) bool {
 			}
 
 		}
-	}
-
-	if !atomic.CompareAndSwapInt32(&this.running, 0, 1) {
-		return false
 	}
 
 	this.handlers[chatID] = new(scheduler).New(conf, f)

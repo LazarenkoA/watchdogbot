@@ -133,3 +133,5 @@ func saveFile(filePath, chatID string) (string, error) {
 		return conf, nil
 	}
 }
+
+// heroku logs -n 1500 -a botwatchdog | grep "lock" -i --color
