@@ -149,6 +149,12 @@ func (this *TwatchDog) setTimer(msg tgbotapi.Message, buttons Buttons, cxt conte
 		tick.Stop()
 	}()
 
+	fmt.Println("Установка таймера, еол-во кнопок у сообщения = ", len(buttons), " msg.Chat = ", msg.Chat)
+
+	//if msg.Chat == nil || len(buttons) == 0 {
+	//	return
+	//}
+
 B:
 	for {
 		select {
@@ -162,10 +168,6 @@ B:
 						button = buttons[i]
 					}
 				}
-			}
-
-			if msg.Chat == nil {
-				continue
 			}
 
 			editmsg := tgbotapi.NewEditMessageText(msg.Chat.ID, msg.MessageID, msg.Text)
@@ -273,6 +275,8 @@ func (this *TwatchDog) Start(chatID int64, conf *Conf) bool {
 		}
 		help = func() {
 			fmt.Println("вопрос")
+
+			fmt.Println("удаление старого сообщения")
 			this.bot.DeleteMessage(tgbotapi.DeleteMessageConfig{
 				ChatID:    chatID,
 				MessageID: messageID})
@@ -280,6 +284,7 @@ func (this *TwatchDog) Start(chatID int64, conf *Conf) bool {
 			delete2 := func() {}
 			send := func() {}
 
+			fmt.Println("отправка нового сообщения")
 			// это на случай если "нет" нажали случайно
 			messageID2, _ := this.SendMsg("Отправка скоро начнется", chatID, Buttons{
 				{
@@ -292,6 +297,7 @@ func (this *TwatchDog) Start(chatID int64, conf *Conf) bool {
 					timer:   conf.Timer,
 				},
 			})
+			fmt.Println("messageID2 = ", messageID2)
 
 			delete2 = func() {
 				this.bot.DeleteMessage(tgbotapi.DeleteMessageConfig{
