@@ -151,9 +151,9 @@ func (this *TwatchDog) setTimer(msg tgbotapi.Message, buttons Buttons, cxt conte
 
 	fmt.Println("Установка таймера, еол-во кнопок у сообщения = ", len(buttons), " msg.Chat = ", msg.Chat)
 
-	//if msg.Chat == nil || len(buttons) == 0 {
-	//	return
-	//}
+	if msg.Chat == nil || len(buttons) == 0 {
+		return
+	}
 
 B:
 	for {
