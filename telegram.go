@@ -71,6 +71,7 @@ func (this *TwatchDog) SendMsg(msg string, chatID int64, buttons Buttons) (int, 
 
 	buttons.createButtons(&newmsg, this.callback, cancel, 3)
 	m, err := this.bot.Send(newmsg)
+	fmt.Println("msg.Chat = ", m.Chat)
 
 	timerExist := false
 	for _, b := range buttons {
@@ -145,15 +146,7 @@ func (this *TwatchDog) checkConfig(filePath string) (*Conf, error) {
 
 func (this *TwatchDog) setTimer(msg tgbotapi.Message, buttons Buttons, cxt context.Context, cancel context.CancelFunc) {
 	tick := time.NewTicker(time.Second)
-	defer func() {
-		tick.Stop()
-	}()
-
-	fmt.Println("Установка таймера, еол-во кнопок у сообщения = ", len(buttons), " msg.Chat = ", msg.Chat)
-
-	//if msg.Chat == nil || len(buttons) == 0 {
-	//	return
-	//}
+	defer tick.Stop()
 
 B:
 	for {
@@ -249,10 +242,7 @@ func (this *TwatchDog) Start(chatID int64, conf *Conf) bool {
 
 	mx := new(sync.Mutex)
 	f := func() {
-		fmt.Println("Lock")
 		mx.Lock()
-
-		fmt.Println("invoke")
 
 		help := func() {}
 		delete := func() {}
@@ -276,9 +266,6 @@ func (this *TwatchDog) Start(chatID int64, conf *Conf) bool {
 			mx.Unlock()
 		}
 		help = func() {
-			fmt.Println("вопрос")
-
-			fmt.Println("удаление старого сообщения")
 			this.bot.DeleteMessage(tgbotapi.DeleteMessageConfig{
 				ChatID:    chatID,
 				MessageID: messageID})
@@ -286,7 +273,6 @@ func (this *TwatchDog) Start(chatID int64, conf *Conf) bool {
 			delete2 := func() {}
 			send := func() {}
 
-			fmt.Println("отправка нового сообщения")
 			// это на случай если "нет" нажали случайно
 			messageID2, _ := this.SendMsg("Отправка скоро начнется", chatID, Buttons{
 				{
@@ -299,7 +285,6 @@ func (this *TwatchDog) Start(chatID int64, conf *Conf) bool {
 					timer:   conf.Timer,
 				},
 			})
-			fmt.Println("messageID2 = ", messageID2)
 
 			delete2 = func() {
 				this.bot.DeleteMessage(tgbotapi.DeleteMessageConfig{
@@ -308,9 +293,7 @@ func (this *TwatchDog) Start(chatID int64, conf *Conf) bool {
 				mx.Unlock()
 			}
 			send = func() {
-				fmt.Println("send start")
 				defer func() {
-					fmt.Println("Unlock")
 					mx.Unlock()
 				}()
 
@@ -325,7 +308,6 @@ func (this *TwatchDog) Start(chatID int64, conf *Conf) bool {
 				//go n.NotifyEmail()
 
 				this.SendMsg(conf.Msgtxt, chatID, Buttons{})
-				fmt.Println("send end")
 			}
 
 		}
