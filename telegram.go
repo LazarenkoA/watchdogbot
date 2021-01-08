@@ -71,7 +71,7 @@ func (this *TwatchDog) SendMsg(msg string, chatID int64, buttons Buttons) (int, 
 
 	buttons.createButtons(&newmsg, this.callback, cancel, 3)
 	m, err := this.bot.Send(newmsg)
-	fmt.Println("msg.Chat = ", m.Chat)
+	fmt.Println("m.Chat = ", m.Chat)
 
 	timerExist := false
 	for _, b := range buttons {
@@ -147,6 +147,8 @@ func (this *TwatchDog) checkConfig(filePath string) (*Conf, error) {
 func (this *TwatchDog) setTimer(msg tgbotapi.Message, buttons Buttons, cxt context.Context, cancel context.CancelFunc) {
 	tick := time.NewTicker(time.Second)
 	defer tick.Stop()
+
+	fmt.Println("msg.Chat = ", msg.Chat)
 
 B:
 	for {
