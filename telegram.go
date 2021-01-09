@@ -71,7 +71,6 @@ func (this *TwatchDog) SendMsg(msg string, chatID int64, buttons Buttons) (int, 
 
 	buttons.createButtons(&newmsg, this.callback, cancel, 3)
 	m, err := this.bot.Send(newmsg)
-	fmt.Println("m.Chat = ", m.Chat)
 
 	timerExist := false
 	for _, b := range buttons {
@@ -147,8 +146,6 @@ func (this *TwatchDog) checkConfig(filePath string) (*Conf, error) {
 func (this *TwatchDog) setTimer(msg tgbotapi.Message, buttons Buttons, cxt context.Context, cancel context.CancelFunc) {
 	tick := time.NewTicker(time.Second)
 	defer tick.Stop()
-
-	fmt.Println("msg.Chat = ", msg.Chat)
 
 B:
 	for {
@@ -276,7 +273,7 @@ func (this *TwatchDog) Start(chatID int64, conf *Conf) bool {
 			send := func() {}
 
 			// это на случай если "нет" нажали случайно
-			messageID2, _ := this.SendMsg("Отправка скоро начнется", chatID, Buttons{
+			messageID2, _ := this.SendMsg("Отправка сообщений скоро начнется", chatID, Buttons{
 				{
 					caption: "Отмена",
 					handler: &delete2,
@@ -303,13 +300,13 @@ func (this *TwatchDog) Start(chatID int64, conf *Conf) bool {
 					ChatID:    chatID,
 					MessageID: messageID2})
 
-				//n := &Notify{
-				//	conf: conf,
-				//}
-				//go n.NotifyTelegram()
-				//go n.NotifyEmail()
+				n := &Notify{
+					conf: conf,
+				}
+				go n.NotifyTelegram()
+				go n.NotifyEmail()
 
-				this.SendMsg(conf.Msgtxt, chatID, Buttons{})
+				this.SendMsg("Сообщения отправлены", chatID, Buttons{})
 			}
 
 		}
