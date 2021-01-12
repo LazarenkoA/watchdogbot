@@ -16,9 +16,6 @@ var (
 )
 
 func main() {
-	fmt.Println(os.Getenv("buffer"))
-	os.Setenv("buffer", "ewdesdfefgvgggggggggggggggggggggggggggggggggg")
-
 	wd := new(TwatchDog)
 	wdUpdate, err := wd.New()
 	if err != nil {
@@ -125,17 +122,20 @@ func main() {
 }
 
 func saveFile(filePath, chatID string) (string, error) {
+	confPath := getConfPath(chatID)
+	if err := dry.FileCopy(filePath, confPath); err != nil {
+		return "", err
+	} else {
+		return confPath, nil
+	}
+}
+
+func getConfPath(chatID string) string {
 	currentDir, _ := os.Getwd()
 	dir := filepath.Join(currentDir, chatID)
 
 	os.MkdirAll(dir, os.ModePerm)
-	conf := filepath.Join(dir, "conf.xml")
-
-	if err := dry.FileCopy(filePath, conf); err != nil {
-		return "", err
-	} else {
-		return conf, nil
-	}
+	return filepath.Join(dir, "conf.xml")
 }
 
 // heroku logs -n 1500 -a botwatchdog | grep "lock" -i --color
