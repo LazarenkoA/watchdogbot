@@ -53,9 +53,11 @@ func (this *TwatchDog) New() (result tgbotapi.UpdatesChannel, err error) {
 		return nil, err
 	}
 
-	WebhookURL = getngrokWebhookURL() // для отладки
 	if WebhookURL == "" {
-		return nil, errors.New("не удалось получить url WebhookURL")
+		WebhookURL = getngrokWebhookURL() // для запуска локально
+		if WebhookURL == "" {
+			return nil, errors.New("не удалось получить url WebhookURL")
+		}
 	}
 
 	_, err = this.bot.SetWebhook(tgbotapi.NewWebhook(WebhookURL))
