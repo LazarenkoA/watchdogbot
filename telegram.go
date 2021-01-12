@@ -40,7 +40,7 @@ type TwatchDog struct {
 	running  int32
 }
 
-const fname = "run"
+const fname = "../run"
 
 func (this *TwatchDog) New() (result tgbotapi.UpdatesChannel, err error) {
 	//this.chatIDs = map[int64]bool{}
