@@ -31,6 +31,7 @@ func main() {
 		os.Exit(1)
 	}
 
+	wd.Resume()
 	for update := range wdUpdate {
 		// обработка команд кнопок
 		if wd.CallbackQuery(update) {
@@ -135,3 +136,4 @@ func saveFile(filePath, chatID string) (string, error) {
 }
 
 // heroku logs -n 1500 -a botwatchdog | grep "lock" -i --color
+// heroku stop dyno -a botwatchdog

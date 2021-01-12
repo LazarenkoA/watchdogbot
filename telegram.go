@@ -40,6 +40,8 @@ type TwatchDog struct {
 	running  int32
 }
 
+const fname = "run"
+
 func (this *TwatchDog) New() (result tgbotapi.UpdatesChannel, err error) {
 	//this.chatIDs = map[int64]bool{}
 	this.callback = map[string]func(){}
@@ -51,7 +53,7 @@ func (this *TwatchDog) New() (result tgbotapi.UpdatesChannel, err error) {
 		return nil, err
 	}
 
-	//WebhookURL = getngrokWebhookURL() // для отладки
+	WebhookURL = getngrokWebhookURL() // для отладки
 	if WebhookURL == "" {
 		return nil, errors.New("не удалось получить url WebhookURL")
 	}
@@ -312,10 +314,46 @@ func (this *TwatchDog) Start(chatID int64, conf *Conf) bool {
 		}
 	}
 
+	// нам нужно сохранить факт того, что задание выполняется, в случае если бот будет перезапущен
+	// что б при старте он начал сразу работать. При Stop файл просто удалим
+	this.saveChatID(chatID)
+
 	this.handlers[chatID] = new(scheduler).New(conf, f)
 	go this.handlers[chatID].Invoke()
 
 	return true
+}
+
+func (this *TwatchDog) saveChatID(chatID int64) {
+	chatIDs := this.readChatIDs() // сначала читаем
+	chatIDs[chatID] = chatID      // добавляем новый
+
+	// сохраняем
+	if b, err := json.Marshal(chatIDs); err == nil {
+		ioutil.WriteFile(fname, b, os.ModePerm)
+	}
+}
+
+func (this *TwatchDog) readChatIDs() map[int64]int64 {
+	chatIDs := map[int64]int64{} // мапа что б избавится от дубликатов
+	if _, err := os.Stat(fname); !os.IsNotExist(err) {
+		if b, err2 := ioutil.ReadFile(fname); err2 == nil {
+			json.Unmarshal(b, &chatIDs)
+		}
+
+	}
+
+	return chatIDs
+}
+
+// Возобновление работы бота (если приложение завершилось без Stop)
+func (this *TwatchDog) Resume() {
+	chatIDs := this.readChatIDs()
+	for _, chatID := range chatIDs {
+		if conf := this.configExist(chatID); conf != nil {
+			this.Start(chatID, conf)
+		}
+	}
 }
 
 func (this *TwatchDog) Stop(chatID int64) {
@@ -324,6 +362,7 @@ func (this *TwatchDog) Stop(chatID int64) {
 	if sc, ok := this.handlers[chatID]; ok {
 		sc.Cancel()
 		delete(this.handlers, chatID)
+		_ = os.Remove(fname)
 	}
 }
 
