@@ -16,6 +16,9 @@ var (
 )
 
 func main() {
+	fmt.Println(os.Getenv("buffer"))
+	os.Setenv("buffer", "ewdesdfefgvgggggggggggggggggggggggggggggggggg")
+
 	wd := new(TwatchDog)
 	wdUpdate, err := wd.New()
 	if err != nil {
