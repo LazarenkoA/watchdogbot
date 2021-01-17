@@ -13,6 +13,7 @@ var (
 	BotToken   = os.Getenv("BotToken")
 	WebhookURL = os.Getenv("WebhookURL")
 	port       = os.Getenv("PORT")
+	redisaddr  = os.Getenv("REDIS")
 )
 
 func main() {
@@ -28,6 +29,10 @@ func main() {
 	}
 	if WebhookURL == "" {
 		fmt.Println("в переменных окружения не задан WebhookURL")
+		os.Exit(1)
+	}
+	if redisaddr == "" {
+		fmt.Println("в переменных окружения не задан адрес redis")
 		os.Exit(1)
 	}
 

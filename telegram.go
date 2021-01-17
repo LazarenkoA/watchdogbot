@@ -40,14 +40,16 @@ type TwatchDog struct {
 	callback map[string]func()
 	handlers map[int64]*scheduler
 	running  int32
-	conf     map[int64]string
+	//conf     map[int64]string
+	r *Redis
 }
 
 func (this *TwatchDog) New() (result tgbotapi.UpdatesChannel, err error) {
 	//this.chatIDs = map[int64]bool{}
 	this.callback = map[string]func(){}
 	this.handlers = map[int64]*scheduler{}
-	this.conf = map[int64]string{}
+	//this.conf = map[int64]string{}
+	this.r, _ = new(Redis).Create(redisaddr)
 
 	this.bot, err = tgbotapi.NewBotAPIWithClient(BotToken, new(http.Client))
 	//bot.Debug = true
@@ -320,7 +322,7 @@ func (this *TwatchDog) Start(chatID int64, conf *Conf) bool {
 
 	// нам нужно сохранить факт того, что задание выполняется, в случае если бот будет перезапущен
 	// что б при старте он начал сразу работать. При Stop файл просто удалим
-	this.writeConfToCache(chatID, conf)
+	this.writeConfToRedis(chatID, conf)
 
 	this.handlers[chatID] = new(scheduler).New(conf, f)
 	go this.handlers[chatID].Invoke()
@@ -328,86 +330,47 @@ func (this *TwatchDog) Start(chatID int64, conf *Conf) bool {
 	return true
 }
 
-func (this *TwatchDog) writeConfToCache(chatID int64, conf *Conf) {
+func (this *TwatchDog) writeConfToRedis(chatID int64, conf *Conf) {
 	this.Lock()
 	defer this.Unlock()
 
 	// на файловую систему я не могу сохранять, особенность хероку
 	// https://devcenter.heroku.com/articles/active-storage-on-heroku
-
-	urlcache := os.Getenv("urlcache")
-	if urlcache == "" {
-		return
-	}
-
-	// перед сохранением читаем
-	this.readConfFromCache()
-
-	var databyte []byte
-	var err error
+	schatID := strconv.FormatInt(chatID, 10)
 
 	// сохраняем
 	if conf == nil {
-		this.conf[chatID] = ""
+		this.r.Delete(schatID)
 	} else {
 		if confbyte, err := xml.Marshal(conf); err != nil {
 			return
 		} else {
-			this.conf[chatID] = string(confbyte)
+			this.r.Set(schatID, string(confbyte), time.Microsecond) // если ttl меньше секунды он проигнорируется
 		}
 	}
-
-	if databyte, err = json.Marshal(&this.conf); err != nil {
-		return
-	}
-
-	go func() {
-		tick := time.NewTicker(time.Hour)
-		// раз в час сохраняем конфиг
-		for {
-			http.Post(urlcache+"?action=set", "", bytes.NewBuffer(databyte))
-			<-tick.C
-		}
-	}()
-
 }
 
-func (this *TwatchDog) readConfFromCache() {
-	// на файловую систему я не могу сохранять, особенность хероку
-	// https://devcenter.heroku.com/articles/active-storage-on-heroku
-
-	urlcache := os.Getenv("urlcache")
-	if urlcache == "" {
-		return
+func (this *TwatchDog) readAllConfFromRedis() map[string]string {
+	result := map[string]string{}
+	for _, key := range this.r.Keys() {
+		result[key], _ = this.r.Get(key)
 	}
 
-	if resp, err := http.Get(urlcache + "?action=get"); err != nil {
-		return
-	} else {
-		defer resp.Body.Close()
-
-		body, _ := ioutil.ReadAll(resp.Body)
-		if len(body) == 0 {
-			return
-		}
-
-		jsonTxt := string(body)
-		if err := json.Unmarshal([]byte(jsonTxt), &this.conf); err != nil {
-			return
-		}
-	}
+	return result
 }
 
 // Возобновление работы бота (если приложение завершилось без Stop)
 func (this *TwatchDog) Resume() {
-	this.readConfFromCache()
-	for chatID, conftxt := range this.conf {
-		if conf := this.configExist(chatID); conf != nil {
-			this.Start(chatID, conf)
-		} else if conftxt != "" {
-			ioutil.WriteFile(getConfPath(strconv.FormatInt(chatID, 10)), []byte(conftxt), os.ModePerm)
+	conf := this.readAllConfFromRedis()
+	for key, conftxt := range conf {
+		if chatID, err := strconv.ParseInt(key, 10, 64); err == nil {
 			if conf := this.configExist(chatID); conf != nil {
 				this.Start(chatID, conf)
+			} else if conftxt != "" {
+				ioutil.WriteFile(getConfPath(strconv.FormatInt(chatID, 10)), []byte(conftxt), os.ModePerm)
+				if conf := this.configExist(chatID); conf != nil {
+					this.Start(chatID, conf)
+				}
 			}
 		}
 	}
@@ -419,7 +382,7 @@ func (this *TwatchDog) Stop(chatID int64) {
 	if sc, ok := this.handlers[chatID]; ok {
 		sc.Cancel()
 		delete(this.handlers, chatID)
-		this.writeConfToCache(chatID, nil)
+		this.writeConfToRedis(chatID, nil)
 	}
 }
 
