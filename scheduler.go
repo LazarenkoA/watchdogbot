@@ -2,12 +2,17 @@ package main
 
 import (
 	"context"
+	"github.com/clintjedwards/avail"
+	"github.com/matryer/resync"
 	"time"
 )
 
 type Conf struct {
-	// интервал через который будет срабатывать уведомление (в минутах)
-	Interval int
+	// Cron шаблон
+	Cron *struct {
+		Patteren string
+		TimeZone string
+	}
 
 	// Обратный отчет в секундах
 	Timer int
@@ -37,6 +42,7 @@ type scheduler struct {
 	tick     *time.Ticker
 	conf     *Conf
 	callback func()
+	once     resync.Once
 }
 
 func (this *scheduler) New(conf *Conf, callback func()) *scheduler {
@@ -53,14 +59,17 @@ func (this *scheduler) Invoke() bool {
 		this.tick.Stop()
 	}()
 
-	start := time.Now()
+	avail, _ := avail.New(this.conf.Cron.Patteren)
+	loc, _ := time.LoadLocation(this.conf.Cron.TimeZone)
+
 B:
 	for {
 		select {
 		case <-this.tick.C:
-			if time.Now().After(start.Add(time.Minute * time.Duration(this.conf.Interval))) {
-				start = time.Now()
-				this.callback()
+			if avail.Able(time.Now().In(loc)) {
+				this.once.Do(this.callback) // once.Do нуженн что б не выполнялось каждую секунду
+			} else {
+				this.once.Reset()
 			}
 
 		case <-this.ctx.Done():

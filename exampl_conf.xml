@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Conf>
-	<!-- Интервал с которым бот будет присылать сообщения (в минутах) -->
-   <Interval>2</Interval> <!-- 1440 - 24ч -->
+    <!-- синтаксис cron (https://en.wikipedia.org/wiki/Cron#CRON_expression) -->
+    <Cron>
+        <Patteren>0 21 * * *</Patteren>
+        <TimeZone>Europe/Moscow</TimeZone>
+    </Cron>
    
    <!-- Обратный отчет (в секундах) перед тем как начать рассылку -->
    <!-- до отправки x2 т.к. есть еще сообщение с подтверждением -->
