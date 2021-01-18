@@ -143,5 +143,5 @@ func getConfPath(chatID string) string {
 	return filepath.Join(dir, "conf.xml")
 }
 
-// heroku logs -n 1500 -a botwatchdog | grep "lock" -i --color
+// heroku logs -n 150 -a botwatchdog | grep "lock" -i --color
 // heroku stop dyno -a botwatchdog
