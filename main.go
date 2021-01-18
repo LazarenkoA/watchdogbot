@@ -4,6 +4,7 @@ import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/ungerik/go-dry"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -35,6 +36,13 @@ func main() {
 		fmt.Println("в переменных окружения не задан адрес redis")
 		os.Exit(1)
 	}
+
+	http.HandleFunc("/resetcache", func(rw http.ResponseWriter, r *http.Request) {
+		conf := wd.readAllConfFromRedis()
+		for key, _ := range conf {
+			wd.r.Delete(key)
+		}
+	})
 
 	wd.Resume()
 	for update := range wdUpdate {
