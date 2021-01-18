@@ -361,19 +361,19 @@ func (this *TwatchDog) readAllConfFromRedis() map[string]string {
 
 // Возобновление работы бота (если приложение завершилось без Stop)
 func (this *TwatchDog) Resume() {
-	//conf := this.readAllConfFromRedis()
-	//for key, conftxt := range conf {
-	//	if chatID, err := strconv.ParseInt(key, 10, 64); err == nil {
-	//		if conf := this.configExist(chatID); conf != nil {
-	//			this.Start(chatID, conf)
-	//		} else if conftxt != "" {
-	//			ioutil.WriteFile(getConfPath(strconv.FormatInt(chatID, 10)), []byte(conftxt), os.ModePerm)
-	//			if conf := this.configExist(chatID); conf != nil {
-	//				this.Start(chatID, conf)
-	//			}
-	//		}
-	//	}
-	//}
+	conf := this.readAllConfFromRedis()
+	for key, conftxt := range conf {
+		if chatID, err := strconv.ParseInt(key, 10, 64); err == nil {
+			if conf := this.configExist(chatID); conf != nil {
+				this.Start(chatID, conf)
+			} else if conftxt != "" {
+				ioutil.WriteFile(getConfPath(strconv.FormatInt(chatID, 10)), []byte(conftxt), os.ModePerm)
+				if conf := this.configExist(chatID); conf != nil {
+					this.Start(chatID, conf)
+				}
+			}
+		}
+	}
 }
 
 func (this *TwatchDog) Stop(chatID int64) {
