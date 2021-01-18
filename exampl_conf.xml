@@ -2,7 +2,7 @@
 <Conf>
     <!-- синтаксис cron (https://en.wikipedia.org/wiki/Cron#CRON_expression) -->
     <Cron>
-        <Patteren>0 21 * * *</Patteren>
+        <Patteren>0 21 * * * *</Patteren>
         <TimeZone>Europe/Moscow</TimeZone>
     </Cron>
    
