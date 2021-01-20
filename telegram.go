@@ -77,6 +77,8 @@ func (this *TwatchDog) SendMsg(msg string, chatID int64, buttons Buttons) (int, 
 	newmsg := tgbotapi.NewMessage(chatID, msg)
 	cxt, cancel := context.WithCancel(context.Background())
 
+	fmt.Println("Отправка сообщения ", msg, " в чат ", chatID)
+
 	buttons.createButtons(&newmsg, this.callback, cancel, 3)
 	m, err := this.bot.Send(newmsg)
 

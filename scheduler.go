@@ -67,7 +67,7 @@ B:
 		select {
 		case <-this.tick.C:
 			if avail.Able(time.Now().In(loc)) {
-				this.once.Do(this.callback) // once.Do нуженн что б не выполнялось каждую секунду
+				this.once.Do(this.callback) // once.Do нужен что б не выполнялось каждую секунду
 			} else {
 				this.once.Reset()
 			}
