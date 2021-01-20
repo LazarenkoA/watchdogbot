@@ -3,11 +3,10 @@ package main
 import (
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
-	"github.com/ungerik/go-dry"
 	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
+	"strings"
 )
 
 var (
@@ -41,6 +40,16 @@ func main() {
 		conf := wd.readAllConfFromRedis()
 		for key, _ := range conf {
 			wd.r.Delete(key)
+		}
+	})
+	http.HandleFunc("/cache/", func(rw http.ResponseWriter, r *http.Request) {
+		parts := strings.Split(r.URL.Path, "/")
+		key := parts[len(parts)-1]
+
+		if conf, err := wd.r.Get(key); err == nil {
+			fmt.Fprint(rw, conf)
+		} else {
+			fmt.Fprint(rw, "Ошибка: ", err)
 		}
 	})
 
@@ -81,12 +90,13 @@ func main() {
 				wd.SendMsg("Команда "+command+" не поддерживается", chatID, Buttons{})
 				continue
 			}
+
 			var conf *Conf
-			if filePath, err := wd.SaveFile(update.Message); err != nil {
+			if confdata, err := wd.ReadFile(update.Message); err != nil {
 				wd.SendMsg("Ошибка сохранения файла:\n"+err.Error(), chatID, Buttons{})
-			} else if conf, err = wd.checkConfig(filePath); err != nil {
+			} else if conf, err = wd.checkConfig(confdata); err != nil {
 				wd.SendMsg("Ошибка проверки синтаксиса:\n"+err.Error(), chatID, Buttons{})
-			} else if conf = wd.configExist(chatID); conf != nil {
+			} else if conf_ := wd.configExist(chatID); conf_ != nil {
 				wd.bot.DeleteMessage(tgbotapi.DeleteMessageConfig{
 					ChatID:    chatID,
 					MessageID: update.Message.MessageID})
@@ -94,7 +104,7 @@ func main() {
 				handleryes := func() {}
 				handlerno := func() {}
 
-				messageID, _ := wd.SendMsg("Конфигурационный файл уже существует, заменить его?", chatID, Buttons{
+				messageID, _ := wd.SendMsg("Заменить существующую конфигурацию?", chatID, Buttons{
 					{
 						caption: "Да",
 						handler: &handleryes,
@@ -112,34 +122,15 @@ func main() {
 						MessageID: messageID})
 				}
 				handleryes = func() {
-					if confPath, err := saveFile(filePath, strconv.FormatInt(chatID, 10)); err != nil {
-						wd.SendMsg("Ошибка опирования файла:\n"+err.Error(), chatID, Buttons{})
-					} else {
-						conf, _ = wd.checkConfig(confPath)
-						editmsg := tgbotapi.NewEditMessageText(chatID, messageID, "Конфиг заменен.\nwatchdog перезапущен")
-						wd.bot.Send(editmsg)
-						wd.ReStart(chatID, conf)
-					}
+					editmsg := tgbotapi.NewEditMessageText(chatID, messageID, "Конфиг заменен.\nwatchdog перезапущен") // конфиг заменяется при старте
+					wd.bot.Send(editmsg)
+					wd.ReStart(chatID, conf)
 				}
 			} else {
-				if confPath, err := saveFile(filePath, strconv.FormatInt(chatID, 10)); err != nil {
-					wd.SendMsg("Ошибка копирования файла:\n"+err.Error(), chatID, Buttons{})
-				} else {
-					conf, _ = wd.checkConfig(confPath)
-				}
 				wd.Start(chatID, conf)
 				wd.bot.Send(tgbotapi.NewMessage(chatID, "watchdog запущен"))
 			}
 		}
-	}
-}
-
-func saveFile(filePath, chatID string) (string, error) {
-	confPath := getConfPath(chatID)
-	if err := dry.FileCopy(filePath, confPath); err != nil {
-		return "", err
-	} else {
-		return confPath, nil
 	}
 }
 

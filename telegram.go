@@ -77,7 +77,7 @@ func (this *TwatchDog) SendMsg(msg string, chatID int64, buttons Buttons) (int, 
 	newmsg := tgbotapi.NewMessage(chatID, msg)
 	cxt, cancel := context.WithCancel(context.Background())
 
-	fmt.Println("Отправка сообщения ", msg, " в чат ", chatID)
+	fmt.Println("Отправка сообщения", msg, "в чат", chatID)
 
 	buttons.createButtons(&newmsg, this.callback, cancel, 3)
 	m, err := this.bot.Send(newmsg)
@@ -103,51 +103,19 @@ func (this *TwatchDog) SendMsg(msg string, chatID int64, buttons Buttons) (int, 
 //}
 
 func (this *TwatchDog) configExist(chatID int64) *Conf {
-	currentDir, _ := os.Getwd()
-	confxml := filepath.Join(currentDir, strconv.FormatInt(chatID, 10), "conf.xml")
-
-	if _, err := os.Stat(confxml); os.IsNotExist(err) {
+	strChatID := strconv.FormatInt(chatID, 10)
+	if conf, err := this.r.Get(strChatID); err == nil && conf != "" {
+		result, _ := this.checkConfig(conf)
+		return result
+	} else {
 		return nil
 	}
-
-	conf, _ := this.checkConfig(confxml)
-	return conf
 }
 
-func (this *TwatchDog) checkConfig(filePath string) (*Conf, error) {
-	if _, err := os.Stat(filePath); os.IsNotExist(err) {
-		return nil, errors.New("file not exist")
-	}
-
-	//d := Conf{
-	//	Interval: 5,
-	//	Timer:    60,
-	//	Email: &struct {
-	//		SMTP       string
-	//		UserName   string
-	//		Pass       string
-	//		Subject    string
-	//		Recipients []string
-	//	}{
-	//		SMTP:       "",
-	//		UserName:   "",
-	//		Pass:       "",
-	//		Subject:    "wwwww",
-	//		Recipients: []string {"fdfd@mail.ru", "fgg@mail.ru"},
-	//	},
-	//	Msgtxt:   "dsdsdsdsdsd",
-	//	Telegram: nil,
-	//}
-	//b, _ := xml.Marshal(&d)
-	//fmt.Println(string(b))
-
+func (this *TwatchDog) checkConfig(xmltxt string) (*Conf, error) {
 	value := new(Conf)
-	if fileData, err := ioutil.ReadFile(filePath); err != nil {
+	if err := xml.Unmarshal([]byte(xmltxt), &value); err != nil {
 		return nil, err
-	} else {
-		if err = xml.Unmarshal(fileData, &value); err != nil {
-			return nil, err
-		}
 	}
 
 	return value, nil
@@ -192,15 +160,21 @@ B:
 	}
 }
 
-func (this *TwatchDog) SaveFile(message *tgbotapi.Message) (filePath string, err error) {
+func (this *TwatchDog) ReadFile(message *tgbotapi.Message) (data string, err error) {
 	//message.Chat.ID
 	downloadFilebyID := func(FileID string) {
 		var file tgbotapi.File
 		if file, err = this.bot.GetFile(tgbotapi.FileConfig{FileID}); err == nil {
 			_, fileName := path.Split(file.FilePath)
-			filePath = path.Join(os.TempDir(), fileName)
+			filePath := path.Join(os.TempDir(), fileName)
+			defer os.Remove(filePath)
 
 			err = this.downloadFile(filePath, file.Link(BotToken))
+			if err == nil {
+				if dataByte, err := ioutil.ReadFile(filePath); err == nil {
+					data = string(dataByte)
+				}
+			}
 		}
 	}
 
@@ -210,7 +184,7 @@ func (this *TwatchDog) SaveFile(message *tgbotapi.Message) (filePath string, err
 		return "", fmt.Errorf("Не поддерживаемый тип данных")
 	}
 
-	return filePath, err
+	return data, err
 }
 
 func (this *TwatchDog) CallbackQuery(update tgbotapi.Update) bool {

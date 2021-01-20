@@ -78,7 +78,7 @@ func (R *Redis) Set(key, value string, ttl time.Duration) error {
 
 	_, err := R.pool.Get().Do("SET", param...)
 	if err != nil {
-		fmt.Println("Redis. Ошибка при выполнении Set")
+		fmt.Printf("Redis. Ошибка при выполнении Set. %v\n", err)
 	}
 	return err
 }
@@ -86,7 +86,7 @@ func (R *Redis) Set(key, value string, ttl time.Duration) error {
 func (R *Redis) Get(key string) (string, error) {
 	v, err := redis.String(R.pool.Get().Do("GET", key))
 	if err != nil && err != redis.ErrNil {
-		fmt.Println("Redis. Ошибка при выполнении Get")
+		fmt.Printf("Redis. Ошибка при выполнении Get. %v\n", err)
 	}
 	return v, err
 }
