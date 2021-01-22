@@ -5,7 +5,7 @@ go 1.15
 
 require (
 	github.com/LazarenkoA/goscheduler v0.0.0-20170523200106-985d22bf8d86
-	github.com/clintjedwards/avail v1.0.0
+	github.com/clintjedwards/avail v1.0.1
 	github.com/dwtechnologies/goscheduler v0.0.0-20170523200106-985d22bf8d86
 	github.com/garyburd/redigo v1.6.2
 	github.com/go-telegram-bot-api/telegram-bot-api v4.6.4+incompatible

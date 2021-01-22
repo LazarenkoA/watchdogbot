@@ -2,6 +2,8 @@ github.com/LazarenkoA/goscheduler v0.0.0-20170523200106-985d22bf8d86 h1:EEcnkvRm
 github.com/LazarenkoA/goscheduler v0.0.0-20170523200106-985d22bf8d86/go.mod h1:KYxJOS0aRtsiFD0hcki4r1lVtREkpWfP8msLDI3DUwQ=
 github.com/clintjedwards/avail v1.0.0 h1:ALR8fLvTNx3rvMiy1n4PaBl/w2uJtjsOU/JLmhfg+p4=
 github.com/clintjedwards/avail v1.0.0/go.mod h1:Le8zAiItB/kf7Jn5u4fUyoekrGqlRLPz0zYaeYZUgvs=
+github.com/clintjedwards/avail v1.0.1 h1:ve54INGG8Y53Epy2/9n6HTpsCkX1N2w/NZFbHfzRd/c=
+github.com/clintjedwards/avail v1.0.1/go.mod h1:Le8zAiItB/kf7Jn5u4fUyoekrGqlRLPz0zYaeYZUgvs=
 github.com/dwtechnologies/goscheduler v0.0.0-20170523200106-985d22bf8d86 h1:rV8jQvpDZPDnH7eRKZC+Ms4DYJW4tvUI5rzoGhliMuk=
 github.com/dwtechnologies/goscheduler v0.0.0-20170523200106-985d22bf8d86/go.mod h1:RAadt5raY5kYPiqECqzXJAF3UwJhIaQTTCtUfIrO1pI=
 github.com/garyburd/redigo v1.6.2 h1:yE/pwKCrbLpLpQICzYTeZ7JsTA/C53wFTJHaEtRqniM=
